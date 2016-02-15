@@ -16,4 +16,7 @@ outbound MLLP host: localhost
 
 Ports, URL's and host is configurable on the web.xml
 
+'Quick-and-dirty' deploy can be done using 'java -jar jetty-runner.jar mllp-http-transformer.war'
+
+
 PS. On my sloppy machine, 200 'protocol format transformations' can be conducted pr. sec.
