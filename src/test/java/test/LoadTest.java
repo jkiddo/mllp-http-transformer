@@ -40,7 +40,7 @@ public class LoadTest {
 		sch.addEventListener(new ContextListener());
 		sch.addFilter(GuiceFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 		sch.addServlet(DefaultServlet.class, "/");
-		server.start();
+		
 
 		ss = new SimpleServer(2576);
 		ss.registerApplication(new ReceivingApplication() {
@@ -60,6 +60,7 @@ public class LoadTest {
 				return true;
 			}
 		});
+		server.start();
 		ss.start();
 		c = new DefaultHapiContext().getConnectionHub().attachLazily("localhost", 2575, false);
 	}
