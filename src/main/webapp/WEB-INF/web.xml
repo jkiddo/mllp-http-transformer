@@ -23,7 +23,7 @@
 		<param-name>H2M-ER7-port</param-name>
 		<param-value>2576</param-value>
 	</context-param>
-		<context-param>
+	<context-param>
 		<param-name>H2M-ER7-host</param-name>
 		<param-value>localhost</param-value>
 	</context-param>
