@@ -51,6 +51,12 @@ public class MLLPtoHTTP {
 		pipesServer.start();
 		httpClient = new HohClientSimple(theUrl.toURL());
 	}
+	
+	public void tearDown()
+	{
+		pipesServer.stop();
+		httpClient.close();
+	}
 
 	@GET
 	@Path("info")

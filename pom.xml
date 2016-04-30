@@ -70,12 +70,12 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>8.1.16.v20140903</version>
+			<version>9.3.8.v20160314</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-guice</artifactId>
-			<version>1.19</version>
+			<version>1.19.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ebaysf.web</groupId>
@@ -156,27 +156,32 @@
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
-			<version>1.19</version>
+			<version>1.19.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.21</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>osgi-over-slf4j</artifactId>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
@@ -186,8 +191,9 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
-			<version>8.1.16.v20140903</version>
+			<version>9.3.8.v20160314</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -198,10 +204,10 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>8.1.16.v20140903</version>
+			<version>9.3.8.v20160314</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
+	<!-- http://localhost:8181/hoh/mllp/info install -s war:mvn:mllp-http-transformer/mllp-http-transformer/0.0.1-SNAPSHOT/war?Web-ContextPath=hoh -->
 
 </project>

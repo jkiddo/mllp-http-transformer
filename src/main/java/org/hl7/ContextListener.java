@@ -20,6 +20,8 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 public class ContextListener extends GuiceServletContextListener {
 
+	private Injector injector;
+
 	public ContextListener() {
 		SLF4JBridgeHandler.removeHandlersForRootLogger();
 		SLF4JBridgeHandler.install();
@@ -27,7 +29,7 @@ public class ContextListener extends GuiceServletContextListener {
 
 	@Override
 	protected Injector getInjector() {
-		return Guice.createInjector(new AbstractModule() {
+		injector = Guice.createInjector(new AbstractModule() {
 
 			@Override
 			protected void configure() {
@@ -47,9 +49,16 @@ public class ContextListener extends GuiceServletContextListener {
 				filter("/*").through(CORSFilter.class);
 			}
 		});
+		return injector;
 	}
 
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
 		super.contextInitialized(servletContextEvent);
+	}
+
+	@Override
+	public void contextDestroyed(ServletContextEvent servletContextEvent) {
+		injector.getInstance(MLLPtoHTTP.class).tearDown();
+		super.contextDestroyed(servletContextEvent);
 	}
 }
