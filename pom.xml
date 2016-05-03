@@ -6,8 +6,13 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
+
 	<properties>
 		<web.contextPath>hoh</web.contextPath>
+		<jetty.version>9.3.8.v20160314</jetty.version><!-- 8.1.16.v20140903 -->
+		<hapi.version>2.2</hapi.version>
+		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>Cp1252</project.reporting.outputEncoding>
 	</properties>
 	<build>
 		<plugins>
@@ -23,6 +28,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
 				<configuration>
 					<archive>
 						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -32,6 +38,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>bundle-manifest</id>
@@ -48,13 +55,17 @@
 						<supportedProjectType>war</supportedProjectType>
 					</supportedProjectTypes>
 					<instructions>
-						<Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${pom.name}</Bundle-Name>
-						<Bundle-Version>${pom.version}</Bundle-Version>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Version>${project.version}</Bundle-Version>
 
-						<Import-Package>javax.servlet,javax.servlet.http,javax.servlet.*,javax.servlet.jsp.*,javax.servlet.jsp.jstl.*</Import-Package>
+						<Import-Package>javax.servlet,javax.servlet.http,javax.servlet.*</Import-Package>
 						<DynamicImport-Package>javax.*, org.xml.sax,
 							org.xml.sax.*,org.w3c.*</DynamicImport-Package>
+						<Export-Package>com.google.inject,
+							org.slf4j,
+							com.google.inject.servlet, javax.ws.rs,
+							javax.ws.rs.core</Export-Package>
 						<Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
 						<Embed-Directory>WEB-INF/lib</Embed-Directory>
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
@@ -67,10 +78,12 @@
 		</plugins>
 	</build>
 	<dependencies>
+
+
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>9.3.8.v20160314</version>
+			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
@@ -85,12 +98,12 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>3.0</version>
+			<version>4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-servlet</artifactId>
-			<version>3.0</version>
+			<version>4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -100,47 +113,47 @@
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-base</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v26</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v251</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v25</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v24</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v231</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v23</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v22</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-structures-v21</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 
 		<dependency>
@@ -186,15 +199,13 @@
 		<dependency>
 			<groupId>ca.uhn.hapi</groupId>
 			<artifactId>hapi-hl7overhttp</artifactId>
-			<version>2.2</version>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
-			<version>9.3.8.v20160314</version>
+			<version>${jetty.version}</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -204,7 +215,7 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>9.3.8.v20160314</version>
+			<version>${jetty.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
