@@ -1,10 +1,12 @@
 package test;
 
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.URI;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.UUID;
@@ -26,12 +28,11 @@ import org.junit.runner.RunWith;
 
 import com.google.inject.servlet.GuiceFilter;
 
-import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.app.Connection;
 import ca.uhn.hl7v2.app.SimpleServer;
 import ca.uhn.hl7v2.hoh.api.DecodeException;
 import ca.uhn.hl7v2.hoh.api.EncodeException;
+import ca.uhn.hl7v2.hoh.hapi.client.HohClientSimple;
 import ca.uhn.hl7v2.llp.LLPException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.v251.message.ACK;
@@ -39,15 +40,14 @@ import ca.uhn.hl7v2.model.v251.message.ADT_A01;
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException;
 
 @RunWith(RandomBlockJUnit4ClassRunner.class)
-public class FunctionalTests {
+public class FunctionalTestsFromHTTP {
 
 	private static SimpleServer mllpServer;
 	private static Server httpServer;
-	private static Connection mllpClient;
 
 	private static Message lastReceived;
 	private ADT_A01 message;
-	private static DefaultHapiContext context;
+	private static HohClientSimple httpClient;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -59,8 +59,7 @@ public class FunctionalTests {
 		mllpServer = new SimpleServer(2576);
 		httpServer.start();
 		mllpServer.start();
-		context = new DefaultHapiContext();
-		mllpClient = context.getConnectionHub().attachLazily("localhost", 2575, false);
+		httpClient = new HohClientSimple(URI.create("http://localhost:8080/http").toURL());
 		mllpServer.registerApplication(new AllReceivingApplication(new ISender() {
 
 			@Override
@@ -77,8 +76,8 @@ public class FunctionalTests {
 	public static void afterClass() throws Exception {
 		mllpServer.stop();
 		httpServer.stop();
-		mllpClient.close();
-		context.close();
+		httpClient.close();
+		Thread.sleep(1000);
 	}
 
 	@Before()
@@ -88,16 +87,15 @@ public class FunctionalTests {
 			mllpServer.start();
 		if (httpServer.isStopped())
 			httpServer.start();
-		if (!mllpClient.isOpen())
-			mllpClient.activate();
 
 		message = new ADT_A01();
 		message.initQuickstart("ADT", "A01", UUID.randomUUID().toString());
 	}
 
 	@Test
-	public void verifyReceiver() throws HL7Exception, IOException, LLPException {
-		mllpClient.getInitiator().sendAndReceive(message);
+	public void verifyReceiver()
+			throws EncodingNotSupportedException, HL7Exception, DecodeException, IOException, EncodeException {
+		httpClient.sendAndReceiveMessage(message);
 		assertThat(message.encode(), equalTo(lastReceived.encode()));
 	}
 
@@ -105,10 +103,11 @@ public class FunctionalTests {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Test
-	public void mllpServerDown() throws HL7Exception, IOException, LLPException, InterruptedException {
+	public void mllpServerDown() throws EncodingNotSupportedException, HL7Exception, DecodeException, IOException,
+			EncodeException, InterruptedException {
 		mllpServer.stop();
 		Thread.sleep(1000);
-		ACK returned = (ACK) mllpClient.getInitiator().sendAndReceive(message);
+		ACK returned = (ACK) httpClient.sendAndReceiveMessage(message).getMessage();
 
 		assertThat(message.getMSH().getMessageControlID().getValue(),
 				equalTo(returned.getMSA().getMessageControlID().getValue()));
@@ -120,16 +119,16 @@ public class FunctionalTests {
 		httpServer.stop();
 		Thread.sleep(1000);
 
-		thrown.expect(HL7Exception.class);
+		thrown.expect(ConnectException.class);
 
-		mllpClient.getInitiator().sendAndReceive(message);
+		httpClient.sendAndReceiveMessage(message);
 	}
 
 	@Test
 	public void testThroughput() throws Exception {
 
 		for (int i = 0; i < 1000; i++) {
-			mllpClient.getInitiator().sendAndReceive(message);
+			httpClient.sendAndReceiveMessage(message);
 		}
 	}
 }
