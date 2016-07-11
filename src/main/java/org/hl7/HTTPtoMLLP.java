@@ -1,11 +1,15 @@
 package org.hl7;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import org.hl7.applications.AllReceivingApplication;
+import org.hl7.applications.ISender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,20 +18,24 @@ import com.google.common.base.Strings;
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.Connection;
+import ca.uhn.hl7v2.app.Initiator;
+import ca.uhn.hl7v2.hoh.api.DecodeException;
+import ca.uhn.hl7v2.hoh.api.EncodeException;
 import ca.uhn.hl7v2.hoh.hapi.server.HohServlet;
+import ca.uhn.hl7v2.llp.LLPException;
 import ca.uhn.hl7v2.model.Message;
-import ca.uhn.hl7v2.protocol.ReceivingApplication;
-import ca.uhn.hl7v2.protocol.ReceivingApplicationException;
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException;
 
 @Singleton
 public class HTTPtoMLLP extends HohServlet {
 
-	public static final Logger logger = LoggerFactory.getLogger(HTTPtoMLLP.class);
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5851058131169148425L;
-	private int port;
+	public static final Logger logger = LoggerFactory.getLogger(HTTPtoMLLP.class);
+	private static final long serialVersionUID = -3852050052170456780L;
+	private int port = 2576;
+	private int timeout = 5000;
 	private String host;
 	private Connection connection;
 
@@ -37,40 +45,40 @@ public class HTTPtoMLLP extends HohServlet {
 		try {
 			port = Integer.parseInt(config.getServletContext().getInitParameter("H2M-ER7-port"));
 		} catch (Exception e) {
-			logger.warn("Using port 2576 as default", e);
-			port = 2576;
+			logger.warn("Using port " + port + " as default as port could not be read from servlet context: "
+					+ e.getMessage(), e);
+		}
+
+		try {
+			timeout = Integer.parseInt(config.getServletContext().getInitParameter("H2M-ER7-timeout"));
+		} catch (Exception e) {
+			logger.warn("Using " + timeout + "ms as timeout default as it could not be read from servlet context: "
+					+ e.getMessage(), e);
 		}
 
 		host = config.getServletContext().getInitParameter("H2M-ER7-host");
 		if (Strings.isNullOrEmpty(host)) {
-			logger.warn("Using localhost as default");
 			host = "localhost";
+			logger.warn("Using " + host + " as default as hostname could not be read from servlet context");
 		}
 
 		try {
-			connection = new DefaultHapiContext().getConnectionHub().attachLazily(host, port, false);
+			@SuppressWarnings("resource")
+			DefaultHapiContext context = new DefaultHapiContext();
+			connection = context.getConnectionHub().attachLazily(host, port, false);
 		} catch (HL7Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
-		setApplication(new ReceivingAllApplication());
-	}
+		setApplication(new AllReceivingApplication(new ISender() {
 
-	class ReceivingAllApplication implements ReceivingApplication {
-
-		@Override
-		public Message processMessage(Message theMessage, Map<String, Object> theMetadata)
-				throws ReceivingApplicationException, HL7Exception {
-
-			try {
-				return connection.getInitiator().sendAndReceive(theMessage);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			@Override
+			public Message send(Message theMessage, Map<String, Object> theMetadata)
+					throws EncodingNotSupportedException, HL7Exception, DecodeException, IOException, EncodeException,
+					LLPException {
+				Initiator initiator = connection.getInitiator();
+				initiator.setTimeout(timeout, TimeUnit.MILLISECONDS);
+				return initiator.sendAndReceive(theMessage);
 			}
-		}
-
-		@Override
-		public boolean canProcess(Message theMessage) {
-			return true;
-		}
+		}));
 	}
 }

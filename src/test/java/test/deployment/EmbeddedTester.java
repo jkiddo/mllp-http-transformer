@@ -1,4 +1,4 @@
-package test;
+package test.deployment;
 
 import java.util.EnumSet;
 
@@ -11,7 +11,7 @@ import org.hl7.ContextListener;
 
 import com.google.inject.servlet.GuiceFilter;
 
-public class JettyTester {
+public class EmbeddedTester {
 
 	public static void main(String[] args) throws Exception {
 		final Server server = new Server(8080);

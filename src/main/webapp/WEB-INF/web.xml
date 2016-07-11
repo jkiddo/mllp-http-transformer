@@ -17,7 +17,7 @@
 	</context-param>
 	<context-param>
 		<param-name>M2H-HTTP-URL</param-name>
-		<param-value>http://localhost:8080/http</param-value>
+		<param-value>http://exrhel0071.it.rm.dk:8181/</param-value>
 	</context-param>
 	<context-param>
 		<param-name>H2M-ER7-port</param-name>
