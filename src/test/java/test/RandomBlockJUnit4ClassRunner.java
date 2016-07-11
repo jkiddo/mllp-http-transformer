@@ -16,7 +16,7 @@ public class RandomBlockJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 		super(clazz);
 	}
 
-	protected java.util.List<org.junit.runners.model.FrameworkMethod> computeTestMethods() {
+	protected List<org.junit.runners.model.FrameworkMethod> computeTestMethods() {
 		List<FrameworkMethod> scrambledOrder = Lists.newArrayList(super.computeTestMethods());
 		Collections.shuffle(scrambledOrder);
 		return ImmutableList.copyOf(scrambledOrder);

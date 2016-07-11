@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Singleton;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.hl7.applications.AllReceivingApplication;
 import org.hl7.applications.ISender;
@@ -22,6 +24,7 @@ import ca.uhn.hl7v2.app.Initiator;
 import ca.uhn.hl7v2.hoh.api.DecodeException;
 import ca.uhn.hl7v2.hoh.api.EncodeException;
 import ca.uhn.hl7v2.hoh.hapi.server.HohServlet;
+import ca.uhn.hl7v2.hoh.util.HTTPUtils;
 import ca.uhn.hl7v2.llp.LLPException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException;
@@ -80,5 +83,19 @@ public class HTTPtoMLLP extends HohServlet {
 				return initiator.sendAndReceive(theMessage);
 			}
 		}));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void doGet(HttpServletRequest theReq, HttpServletResponse theResp) throws ServletException, IOException {
+
+		theResp.setStatus(400);
+		theResp.setContentType("text/html");
+
+		String message = "Hosting HTTP service here and sending it over MLLP to " + host + ":" + port;
+		HTTPUtils.write400BadRequest(theResp.getOutputStream(), message, false);
+
 	}
 }

@@ -15,13 +15,21 @@
 		<param-name>M2H-ER7-port</param-name>
 		<param-value>2575</param-value>
 	</context-param>
+		<context-param>
+		<param-name>M2H-ER7-timeout</param-name>
+		<param-value>1000</param-value>
+	</context-param>
 	<context-param>
 		<param-name>M2H-HTTP-URL</param-name>
-		<param-value>http://exrhel0071.it.rm.dk:8181/</param-value>
+		<param-value>http://10.83.67.159:9080/booking/hl7service</param-value>
 	</context-param>
 	<context-param>
 		<param-name>H2M-ER7-port</param-name>
 		<param-value>2576</param-value>
+	</context-param>
+		<context-param>
+		<param-name>H2M-ER7-timeout</param-name>
+		<param-value>1000</param-value>
 	</context-param>
 	<context-param>
 		<param-name>H2M-ER7-host</param-name>
