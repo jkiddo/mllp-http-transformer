@@ -21,7 +21,8 @@
 	</context-param>
 	<context-param>
 		<param-name>M2H-HTTP-URL</param-name>
-		<param-value>http://10.83.67.159:9080/booking/hl7service</param-value>
+		<param-value>http://localhost:8080/http</param-value>
+		<!-- <param-value>http://10.83.67.159:9080/booking/hl7service</param-value> -->
 	</context-param>
 	<context-param>
 		<param-name>H2M-ER7-port</param-name>

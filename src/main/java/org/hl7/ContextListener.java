@@ -6,6 +6,8 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContextEvent;
 
 import org.ebaysf.web.cors.CORSFilter;
+import org.hl7.RoutingConfiguration.HTTPtoMLLPConfiguration;
+import org.hl7.RoutingConfiguration.MLLPtoHTTPConfiguration;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,6 +23,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 public class ContextListener extends GuiceServletContextListener {
 
 	private Injector injector;
+	private RoutingConfiguration configuration;
 
 	public ContextListener() {
 		SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -33,7 +36,9 @@ public class ContextListener extends GuiceServletContextListener {
 
 			@Override
 			protected void configure() {
-				bind(MLLPtoHTTP.class).asEagerSingleton();
+				bind(HTTPtoMLLPConfiguration.class).toInstance(configuration.getHttpToMLLP());
+				bind(MLLPtoHTTPConfiguration.class).toInstance(configuration.getMllpToHTTP());
+				bind(MLLPtoHTTPServlet.class).asEagerSingleton();
 			}
 		}, new JerseyServletModule() {
 
@@ -44,8 +49,8 @@ public class ContextListener extends GuiceServletContextListener {
 								GZIPContentEncodingFilter.class.getName())
 						.build();
 				bind(CORSFilter.class).in(Singleton.class);
-				serve("/mllp/*").with(GuiceContainer.class, params);
-				serve("/http*").with(HTTPtoMLLP.class);
+				serve("/mllp*").with(GuiceContainer.class, params);
+				serve("/http*").with(HTTPtoMLLPServlet.class);
 				filter("/*").through(CORSFilter.class);
 			}
 		});
@@ -53,12 +58,13 @@ public class ContextListener extends GuiceServletContextListener {
 	}
 
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
+		configuration = RoutingConfiguration.transform(servletContextEvent.getServletContext());
 		super.contextInitialized(servletContextEvent);
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
-		injector.getInstance(MLLPtoHTTP.class).tearDown();
+		injector.getInstance(MLLPtoHTTPServlet.class).tearDown();
 		super.contextDestroyed(servletContextEvent);
 	}
 }

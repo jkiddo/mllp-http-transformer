@@ -3,9 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>mllp-http-transformer</groupId>
 	<artifactId>mllp-http-transformer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
-
 
 	<properties>
 		<web.contextPath>hoh</web.contextPath>
@@ -56,7 +55,8 @@
 					</supportedProjectTypes>
 					<instructions>
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${project.name}</Bundle-Name>
+						<!-- <Bundle-Name>${project.name}</Bundle-Name> -->
+						<Bundle-Name>HL7 Protocol transformer</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
 
 						<Import-Package>javax.servlet,javax.servlet.http,javax.servlet.*</Import-Package>
@@ -71,15 +71,17 @@
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
 						<Web-ContextPath>${web.contextPath}</Web-ContextPath>
-						<Webapp-Context>${web.contextPath}</Webapp-Context>
 					</instructions>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
 			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
-
-
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
@@ -98,12 +100,12 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>4.0</version>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-servlet</artifactId>
-			<version>4.0</version>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -219,6 +221,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<!-- http://localhost:8181/hoh/mllp/info install -s war:mvn:mllp-http-transformer/mllp-http-transformer/0.0.1-SNAPSHOT/war?Web-ContextPath=hoh -->
+	<!-- http://localhost:8181/hoh/mllp install -s war:mvn:mllp-http-transformer/mllp-http-transformer/1.0.0/war -->
 
 </project>

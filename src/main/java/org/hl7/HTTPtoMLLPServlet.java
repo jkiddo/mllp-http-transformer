@@ -4,18 +4,17 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hl7.RoutingConfiguration.HTTPtoMLLPConfiguration;
 import org.hl7.applications.AllReceivingApplication;
 import org.hl7.applications.ISender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
@@ -30,45 +29,25 @@ import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException;
 
 @Singleton
-public class HTTPtoMLLP extends HohServlet {
+public class HTTPtoMLLPServlet extends HohServlet {
 
 	/**
 	 * 
 	 */
-	public static final Logger logger = LoggerFactory.getLogger(HTTPtoMLLP.class);
+	public static final Logger logger = LoggerFactory.getLogger(HTTPtoMLLPServlet.class);
 	private static final long serialVersionUID = -3852050052170456780L;
-	private int port = 2576;
-	private int timeout = 5000;
-	private String host;
 	private Connection connection;
+	private HTTPtoMLLPConfiguration configuration;
 
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-
-		try {
-			port = Integer.parseInt(config.getServletContext().getInitParameter("H2M-ER7-port"));
-		} catch (Exception e) {
-			logger.warn("Using port " + port + " as default as port could not be read from servlet context: "
-					+ e.getMessage(), e);
-		}
-
-		try {
-			timeout = Integer.parseInt(config.getServletContext().getInitParameter("H2M-ER7-timeout"));
-		} catch (Exception e) {
-			logger.warn("Using " + timeout + "ms as timeout default as it could not be read from servlet context: "
-					+ e.getMessage(), e);
-		}
-
-		host = config.getServletContext().getInitParameter("H2M-ER7-host");
-		if (Strings.isNullOrEmpty(host)) {
-			host = "localhost";
-			logger.warn("Using " + host + " as default as hostname could not be read from servlet context");
-		}
+	@Inject
+	public HTTPtoMLLPServlet(final HTTPtoMLLPConfiguration configuration) {
+		this.configuration = configuration;
 
 		try {
 			@SuppressWarnings("resource")
 			DefaultHapiContext context = new DefaultHapiContext();
-			connection = context.getConnectionHub().attachLazily(host, port, false);
+			connection = context.getConnectionHub().attachLazily(configuration.getHost(), configuration.getPort(),
+					false);
 		} catch (HL7Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
@@ -79,7 +58,7 @@ public class HTTPtoMLLP extends HohServlet {
 					throws EncodingNotSupportedException, HL7Exception, DecodeException, IOException, EncodeException,
 					LLPException {
 				Initiator initiator = connection.getInitiator();
-				initiator.setTimeout(timeout, TimeUnit.MILLISECONDS);
+				initiator.setTimeout(configuration.getTimeout(), TimeUnit.MILLISECONDS);
 				return initiator.sendAndReceive(theMessage);
 			}
 		}));
@@ -94,7 +73,8 @@ public class HTTPtoMLLP extends HohServlet {
 		theResp.setStatus(400);
 		theResp.setContentType("text/html");
 
-		String message = "Hosting HTTP service here and sending it over MLLP to " + host + ":" + port;
+		String message = "Hosting HTTP service here and sending it over MLLP to " + configuration.getHost() + ":"
+				+ configuration.getPort();
 		HTTPUtils.write400BadRequest(theResp.getOutputStream(), message, false);
 
 	}

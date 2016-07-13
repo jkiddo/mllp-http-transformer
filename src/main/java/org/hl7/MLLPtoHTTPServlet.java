@@ -2,17 +2,16 @@ package org.hl7;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 
+import org.hl7.RoutingConfiguration.MLLPtoHTTPConfiguration;
 import org.hl7.applications.AllReceivingApplication;
 import org.hl7.applications.ISender;
 import org.slf4j.Logger;
@@ -28,48 +27,21 @@ import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException;
 
 @Path("/")
-public class MLLPtoHTTP {
+public class MLLPtoHTTPServlet {
 
-	private int port = 2575;
-	private int timeout = 5000;
-	private URI theUrl;
 	private HohClientSimple httpClient;
 	private SimpleServer pipesServer;
+	private MLLPtoHTTPConfiguration configuration;
 
-	public static final Logger logger = LoggerFactory.getLogger(MLLPtoHTTP.class);
+	public static final Logger logger = LoggerFactory.getLogger(MLLPtoHTTPServlet.class);
 
 	@Inject
-	public MLLPtoHTTP(@Context ServletContext context) throws MalformedURLException {
+	public MLLPtoHTTPServlet(MLLPtoHTTPConfiguration configuration) throws MalformedURLException {
+		this.configuration = configuration;
 
-		try {
-			port = Integer.parseInt(context.getInitParameter("M2H-ER7-port"));
-		} catch (Exception e) {
-			port = 2575;
-			logger.warn("Using port " + port + " as default as port could not be read from servlet context: "
-					+ e.getMessage(), e);
-		}
-
-		try {
-			timeout = Integer.parseInt(context.getInitParameter("M2H-ER7-timeout"));
-		} catch (Exception e) {
-			timeout = 5000;
-			logger.warn("Using " + timeout + "ms as timeout default as it could not be read from servlet context: "
-					+ e.getMessage(), e);
-		}
-
-		try {
-			theUrl = URI.create(context.getInitParameter("M2H-HTTP-URL"));
-		} catch (Exception e) {
-			logger.warn(
-					"Using address http://localhost:8080/http as default as address could not be read from servlet context: "
-							+ e.getMessage(),
-					e);
-			theUrl = URI.create("http://localhost:8080/http");
-		}
-
-		httpClient = new HohClientSimple(theUrl.toURL());
-		httpClient.setResponseTimeout(timeout);
-		pipesServer = new SimpleServer(port);
+		httpClient = new HohClientSimple(configuration.getTheURI().toURL());
+		httpClient.setResponseTimeout(configuration.getTimeout());
+		pipesServer = new SimpleServer(configuration.getPort());
 		pipesServer.registerApplication(new AllReceivingApplication(new ISender() {
 
 			@Override
@@ -92,8 +64,8 @@ public class MLLPtoHTTP {
 		theResp.setStatus(400);
 		theResp.setContentType("text/html");
 
-		String message = "Hosting MLLP service on " + theReq.getRemoteHost() + ":" + port + " and sending it over HTTP to "
-				+ theUrl.toString();
+		String message = "Hosting MLLP service on " + theReq.getRemoteHost() + ":" + configuration.getPort()
+				+ " and sending it over HTTP to " + configuration.getTheURI().toString();
 		HTTPUtils.write400BadRequest(theResp.getOutputStream(), message, false);
 
 	}
