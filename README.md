@@ -22,3 +22,5 @@ All values are configurable in the web.xml
 
 
 PS. On my sloppy machine, 200 'protocol format transformations' can be conducted pr. sec.
+
+[<img src="https://github.com/jkiddo/mllp-http-transformer/raw/master/HoH_Relay_extended.png">](https://github.com/jkiddo/mllp-http-transformer)
