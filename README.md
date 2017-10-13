@@ -1,9 +1,9 @@
-#HL7 Protocol transformer
+# HL7 Protocol transformer
 An HTTP/MLLP and MLLP/HTTP transformer (suitable for non-restricted servlet environments and OSGi environments)
 
 This project consists of 2 servlets bundled together making it transparent to consumers and senders whether MLLP or HTTP is being used as a transport format for HL7v2 messages. The servlet spawns threads (controlled by the default thread factory of HAPI - so it is not totally havoc) when consuming and sending so deploying in a strict servlet container is probably not an option. It can however be used as a proxy in front of whatever services you have in your environment that fit your needs - being HTTP or MLLP - or both. Enjoy!
 
-##Default setup is the following:
+## Default setup is the following:
 
 MLLP-2-HTTP:
 
